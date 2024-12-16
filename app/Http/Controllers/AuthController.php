@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Jobs\SendEmailJob;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
@@ -16,6 +17,8 @@ class AuthController extends Controller
         $user->password = bcrypt($request->password);
         $user->verification_token = uniqid();
         $user->save();
+
+        SendEmailJob::dispatch($user);
 
         return $this->success($user, 'User created successfully', 201);
     }
