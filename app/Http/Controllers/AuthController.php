@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Jobs\SendEmailJob;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class AuthController extends Controller
 
         SendEmailJob::dispatch($user);
 
-        return $this->success($user, 'User created successfully', 201);
+        return $this->success(new UserResource($user), 'User created successfully', 201);
     }
     public function login(LoginRequest $request){
 
