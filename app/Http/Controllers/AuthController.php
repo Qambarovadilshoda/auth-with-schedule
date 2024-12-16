@@ -32,13 +32,14 @@ class AuthController extends Controller
         if(!Hash::check($request->password, $user->password)){
             return $this->error('Password is incorrect');
         }
-        
+        $token = $user->createToken('login')->plainTextToken;
+        return $this->success($token, 'User logged successfully');
     }
     public function getUser(Request $request){
-
+        return $this->success(new UserResource($request->user()));
     }
     public function logout(Request $request){
-
+        
     }
     public function emailVerify(Request $request){
         $user = User::where('verification_token', $request->token)->firstOrFail();
