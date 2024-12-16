@@ -15,6 +15,14 @@ class SetLocaleMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $locale = $request->header('Accept-Language');
+
+        if (in_array($locale, ['uz', 'en', 'ru'])) {
+            app()->setLocale($locale);
+        } else {
+            app()->setLocale('en');
+        }
+
         return $next($request);
     }
 }
