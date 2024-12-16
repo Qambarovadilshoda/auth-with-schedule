@@ -22,31 +22,32 @@ class AuthController extends Controller
 
         SendEmailJob::dispatch($user);
 
-        return $this->success(new UserResource($user), 'User created successfully', 201);
+        return $this->success(new UserResource($user), __('successes.user.created'), 201);
     }
     public function login(LoginRequest $request){
         $user = User::where('email', $request->email)->firstOrFail();
         if($user->email_verified_at == null){
-            return $this->error('Email not verified', 403);
+            return $this->error(__('errors.email.not_verified'), 403);
         }
         if(!Hash::check($request->password, $user->password)){
-            return $this->error('Password is incorrect');
+            return $this->error(__('errors.password.incorrect'));
         }
         $token = $user->createToken('login')->plainTextToken;
-        return $this->success($token, 'User logged successfully');
+        return $this->success($token,__( 'successes.user.logged'));
     }
     public function getUser(Request $request){
         return $this->success(new UserResource($request->user()));
     }
     public function logout(Request $request){
-        
+        $request->user()->currentAccessToken()->delete();
+        return $this->success([], __('successes.user.logged_out'), 204);
     }
     public function emailVerify(Request $request){
         $user = User::where('verification_token', $request->token)->firstOrFail();
         $user->email_verified_at = now();
         $user->save();
 
-        return $this->success([], 'Email verified successfully');
+        return $this->success([], __('successes.email.verified'));
 
     }
 }
