@@ -8,4 +8,7 @@ return [
         'logged_out' => 'User logged out successfully!',
         'logged' => 'User logged successfully!',
     ],
+    'email' => [
+        'verified' => 'Email verified successfully!'
+    ]
 ];

@@ -9,5 +9,8 @@ return [
         'logged' => 'Foydalanuvchi tizimga muvaffaqiyatli kirdi!',
         'logged_out' => 'Foydalanuvchi tizimdan muvaffaqiyatli chiqdi!',
     ],
+    'email' => [
+        'verified' => 'Elektron pochta muvaffaqiyatli tasdiqlandi!!'
+    ]
 
 ];
