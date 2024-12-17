@@ -1,66 +1,154 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Authentication with Email Verification
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
+This project demonstrates how to implement an authentication system in Laravel with email verification. It includes the following features:
 
-## About Laravel
+1. **Email Verification:** A verification link is sent to the user's email upon registration.
+2. **Queued Email Sending:** Emails are sent via a `Job` to ensure non-blocking operations.
+3. **Automatic User Deletion:** A `Command` is implemented to delete users who have not verified their email within 3 days of registration.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Mail Configuration:**
+   - The system sends a verification email to newly registered users.
+   - Emails are sent using Laravel's `Mail` facade.
 
-## Learning Laravel
+2. **Job Implementation:**
+   - The email sending process is handled by a `Job` to optimize performance.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+3. **Command to Clean Up Users:**
+   - Users who fail to verify their email within 3 days of registration are automatically deleted by a scheduled command.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation Steps
 
-## Laravel Sponsors
+### Prerequisites
+Ensure you have the following installed:
+- PHP 8.1+
+- Composer
+- MySQL or any other supported database
+- Laravel 10+
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Installation
 
-### Premium Partners
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+2. Install dependencies:
+   ```bash
+   composer install
+   ```
 
-## Contributing
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   Configure the `.env` file with your database and mail credentials.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. Run migrations:
+   ```bash
+   php artisan migrate
+   ```
 
-## Code of Conduct
+5. Generate an application key:
+   ```bash
+   php artisan key:generate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. Set up the queue system:
+   ```bash
+   php artisan queue:work
+   ```
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Usage
 
-## License
+### User Registration
+1. Register a new user by sending a POST request to `/register` with the following payload:
+   ```json
+   {
+       "name": "User Name",
+       "email": "user@example.com",
+       "password": "password",
+       "password_confirmation": "password"
+   }
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. The system will send a verification link to the provided email address.
+
+### Email Verification
+- The user clicks on the verification link in the email to verify their account.
+
+### Command for Cleanup
+- Run the command to delete unverified users manually:
+  ```bash
+  php artisan app:clean-unverified-users
+  ```
+
+- Schedule the command by adding the following to `app/Console/Kernel.php`:
+  ```php
+  protected function schedule(Schedule $schedule):
+  {
+      $schedule->command('users:delete-unverified')->daily();
+  }
+  ```
+
+---
+
+## Code Structure
+
+### Email Verification Job
+Located in `app/Jobs/SendEmailJob.php`:
+- Handles sending the verification email to the user.
+
+### Cleanup Command
+Located in `app/Console/Commands/CleanUnverifiedUsers.php`:
+- Deletes users who have not verified their email within 3 days of registration.
+
+### Email Template
+Located in `resources/views/email/send.blade.php`:
+- Contains the verification email content.
+
+---
+
+## Additional Commands
+
+### Queue Work
+To start the queue worker:
+```bash
+php artisan queue:work
+```
+
+---
+
+## Testing
+
+### Manual Testing
+- Register a user and check if the verification email is received.
+- Wait for 3 days and verify that unverified users are deleted by running the cleanup command.
+
+---
+
+## Notes
+- Ensure your mail server is correctly configured in `.env`:
+  ```env
+  MAIL_MAILER=smtp
+  MAIL_HOST=smtp.mailtrap.io
+  MAIL_PORT=2525
+  MAIL_USERNAME=your_username
+  MAIL_PASSWORD=your_password
+  MAIL_ENCRYPTION=tls
+  MAIL_FROM_ADDRESS=no-reply@example.com
+  MAIL_FROM_NAME="App Name"
+  ```
+
+## Documentation
+
+- My project's [api documentation](https://documenter.getpostman.com/view/39432331/2sAYJ1j2H3)
