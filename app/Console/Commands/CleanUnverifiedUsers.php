@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class CleanUnverifiedUsers extends Command
@@ -25,6 +26,17 @@ class CleanUnverifiedUsers extends Command
      */
     public function handle()
     {
-        //
+        $unverifiedUsers = User::whereNull('email_verified_at')->get();
+        if ($unverifiedUsers->isEmpty()) {
+            $this->info('No unverified users found.');
+        } else {
+            $this->info('Deleting unverified users...');
+            foreach ($unverifiedUsers as $user) {
+                $user->delete();
+                $this->info("Deleted user: {$user->email}");
+            }
+
+            $this->info('Unverified users deleted successfully.');
+        }
     }
 }
