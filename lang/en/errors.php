@@ -7,4 +7,10 @@ return [
     'model' => [
         'not_found' => 'not found',
     ],
+    'email' => [
+        'not_verified' => 'Email not verified.'
+    ],
+    'password' => [
+        'incorrect' => 'Password is incorrect'
+    ]
 ];
