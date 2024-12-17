@@ -19,7 +19,7 @@ class CleanUnverifiedUsers extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Delete users whose email is not verified';
 
     /**
      * Execute the console command.
